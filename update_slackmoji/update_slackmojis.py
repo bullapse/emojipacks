@@ -54,24 +54,27 @@ def get_categories(slackmojis):
 
 
 def valid_image(name, src):
-    ext = os.path.splitext(src)[1]
-    # the downloaded filename is different from if you download it manually
-    # because of the possible duplicates
-    dl_file = os.path.join(SLACKMOJI_DL_DIR, ''.join([name, ext]))
-    if os.path.isfile(dl_file):
-        with open(dl_file) as f:
-            body = f.read()
-    else:
-        response = download_file(src, dl_file)
-        body = response.content
+    try:
+        ext = os.path.splitext(src)[1]
+        # the downloaded filename is different from if you download it manually
+        # because of the possible duplicates
+        dl_file = os.path.join(SLACKMOJI_DL_DIR, ''.join([name, ext]))
+        if os.path.isfile(dl_file):
+            with open(dl_file) as f:
+                body = f.read()
+        else:
+            response = download_file(src, dl_file)
+            body = response.content
 
-    with io.BytesIO(body) as f:
-        # Is it an image?
-        im = Image.open(f)
-        if im.width > 128 or im.height > 128:
-            print(':{}: is {}\t{}'.format(name, im.size, src))
-            return False
-    return True
+        with io.BytesIO(body) as f:
+            # Is it an image?
+                im = Image.open(f)
+                if im.width > 128 or im.height > 128:
+                    print(':{}: is {}\t{}'.format(name, im.size, src))
+                    return False
+        return True
+    except:
+        return False
 
 
 def main():
@@ -93,6 +96,7 @@ def main():
 
     data = {}
     for category in categories:
+        print("-------------------------------------------\nstarting category: " + category)
         data[category] = {'emojis': []}
         output_file_yaml = os.path.join(slackmoji_pack_dir,
                                         'slackmojis-{}.yaml'.format(category))
@@ -105,6 +109,7 @@ def main():
 
     name_count = Box()
     for slackmoji in slackmojis:
+        print(slackmoji['name'])
         name = str(slackmoji['name'])
         category = 'uncategorized'
         if 'category' in slackmoji:
